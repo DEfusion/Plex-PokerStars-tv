@@ -1,9 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site 
-  site="http://www.pokerstars.tv/"
+	site="http://www.pokerstars.tv/"
 	plugin="http://player.videojuicer.com/bootstrap.swf"
-	initialState="playing"
+	initialState="buffering"
 	version="1.0">
 
 	<crop x="0" y="0" width="662" height="372" />
+	
+	<!-- BUFFERING -->
+	<state name="buffering">
+		<event>
+			<condition>
+				<frameLoaded />
+			</condition>
+			<action>
+				<goto state="playing" />
+			</action>
+		</event>
+	</state>
+	
+	<!-- PLAYING -->
+	<state name="playing">
+		<event>
+			<condition>
+				<command name="pause" />
+			</condition>
+			<action>
+				<type key="32" />
+				<goto state="paused" />
+			</action>
+		</event>
+	</state>
+	
+	<!-- PAUSED -->
+	<state name="paused">
+		<event>
+			<condition>
+				<command name="play" />
+			</condition>
+			<action>
+				<type key="32" />
+				<goto state="playing" />
+			</action>
+		</event>
+	</state>
+	
+	<!-- STEP FORWARD -->
+	<state name="bigstep+">
+		<event>
+			<condition>
+				<command name="bigstep+" />
+			</condition>
+			<action>
+				<type key="39" />
+				<goto state="playing" />
+			</action>
+		</event>
+	</state>
+	<state name="smallstep+">
+		<event>
+			<condition>
+				<command name="smallstep+" />
+			</condition>
+			<action>
+				<type key="39" />
+				<goto state="playing" />
+			</action>
+		</event>
+	</state>
+	
+	<!-- STEP BACKWARD -->
+	<state name="bigstep-">
+		<event>
+			<condition>
+				<command name="bigstep-" />
+			</condition>
+			<action>
+				<type key="37" />
+				<goto state="playing" />
+			</action>
+		</event>
+	</state>
+	<state name="smallstep-">
+		<event>
+			<condition>
+				<command name="smallstep-" />
+			</condition>
+			<action>
+				<type key="37" />
+				<goto state="playing" />
+			</action>
+		</event>
+	</state>
+	
 </site>
