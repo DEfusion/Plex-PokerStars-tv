@@ -22,6 +22,8 @@ PLUGIN_ICON_DEFAULT        = 'icon-default.png'
 def Start():
   Plugin.AddPrefixHandler(PLUGIN_PREFIX, MainMenu, PLUGIN_TITLE, PLUGIN_ICON_DEFAULT, PLUGIN_ARTWORK)
   Plugin.AddViewGroup('Channels', viewMode='InfoList', mediaType='items')
+  Plugin.AddViewGroup('ChannelDetails', viewMode='InfoList', mediaType='items')
+  Plugin.AddViewGroup('ChannelVideos', viewMode='InfoList', mediaType='items')
 #    Plugin.AddViewGroup("Channels", viewMode="InfoList", mediaType="items")
 #    MediaContainer.title1 = L('pokerstars.tv')
 #    MediaContainer.art    = R(POKERSTARS_ART)
@@ -31,23 +33,59 @@ def Start():
 # MENUS
 ###################################################################################################
 def MainMenu():
-  dir = MediaContainer(viewGroup='Channels')
+  dir = MediaContainer(title1=PLUGIN_TITLE,viewGroup='Channels')
   channels = HTML.ElementFromURL( CHANNELS_URL, errors='ignore').xpath('//*/div[@id="template"]/ul/li/div[@class="content clearfix"]/a[@class="logo"]')
   for channel in channels:
-    url = channel[0].get('href')
-    img = channel.xpath('.//img')
-    name = img[0].get('alt').replace(' logo', '')
+    url      = channel.get('href')
+    img      = channel.xpath('.//img')
+    name     = img[0].get('alt').replace(' logo', '')
     thumbUrl = img[0].get('src')
-    Log( url )
-    Log( name )
-    Log( thumbUrl ) 
-    dir.Append( 
-      DirectoryItem( 
-        name,
-        name,
-        thumb=Function(GetThumb, thumbUrl=thumbUrl)
+    # Log( url )
+    # Log( name )
+    # Log( thumbUrl ) 
+    dir.Append(
+      Function(
+        DirectoryItem( 
+          ChannelDetails,
+          name,
+          thumb=Function(GetThumb, thumbUrl=thumbUrl)
+        ),
+        url=url,
+        name=name,
+        thumbUrl=thumbUrl
       )
     )
+  return dir
+  
+###################################################################################################
+def ChannelDetails(sender,url,name,thumbUrl):
+  dir = MediaContainer(title1=PLUGIN_TITLE,title2=name,viewGroup='ChannelDetails')
+  # url = url.replace('-2.html', '-full-episodes.html')
+  # Log( 'Getting episodes from: ' + BASE_URL + url )
+  # episodes = HTML.ElementFromURL( BASE_URL + url ).xpath()
+  the_url = BASE_URL + url
+  # Log( 'Getting details from: ' + the_url )
+  sections = HTML.ElementFromURL(the_url, errors='ignore').xpath('//*/div[@id="template"]/div[@id="clm-one"]/div/ul/li/a')
+  for section in sections:
+    url  = section.get('href')
+    name = section.text.strip()
+    dir.Append(
+      Function(
+        DirectoryItem(
+          ChannelVideos,
+          name,
+          thumb=Function(GetThumb, thumbUrl=thumbUrl)
+        ),
+        url=url,
+        name=name
+      )
+    )
+  
+  return dir
+  
+###################################################################################################
+def ChannelVideos(sender,url,name):
+  dir = MediaContainer(title2=name,viewGroup='ChannelVideos')
   return dir
 
 ###################################################################################################
