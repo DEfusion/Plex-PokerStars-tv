@@ -64,28 +64,41 @@ def ChannelDetails(sender,url,name,thumbUrl):
   # Log( 'Getting episodes from: ' + BASE_URL + url )
   # episodes = HTML.ElementFromURL( BASE_URL + url ).xpath()
   the_url = BASE_URL + url
-  Log( 'Getting details from: ' + the_url )
+  # Log( 'Getting details from: ' + the_url )
   sections = HTML.ElementFromURL(the_url, errors='ignore').xpath('//*/div[@id="template"]/div[@id="clm-one"]/div/ul/li/a')
   for section in sections:
-    url  = section.get('href')
-    name = section.text.strip()
+    url          = section.get('href')
+    section_name = section.text.strip()
     dir.Append(
       Function(
         DirectoryItem(
           ChannelVideos,
-          name,
+          section_name,
           thumb=Function(GetThumb, thumbUrl=thumbUrl)
         ),
         url=url,
-        name=name
+        channel_name=name,
+        name=section_name
       )
     )
   
   return dir
   
 ###################################################################################################
-def ChannelVideos(sender,url,name):
-  dir = MediaContainer(title2=name,viewGroup='ChannelVideos')
+def ChannelVideos(sender,url,channel_name,name):
+  dir = MediaContainer(title1=channel_name,title2=name,viewGroup='ChannelVideos')
+  videos = GetChannelVideos( url )
+  for video in videos:
+    dir.Append(
+      WebVideoItem(
+        BASE_URL + video['url'],
+        title=video['title'],
+        thumb=Function(GetThumb, thumbUrl=video['thumb_url'] + '?maxwidth=512&maxheight=512')
+      )
+    )
+    # Log( video['title'] )
+    # Log( video['url'] )
+    # Log( video['thumb_url'] )
   return dir
 
 ###################################################################################################
@@ -97,6 +110,40 @@ def GetThumb(thumbUrl):
     return DataObject(data, 'image/png')
   else:
     return Redirect(R(PLUGIN_ICON_DEFAULT))
+    
+def GetChannelVideos(url, is_sub_page=False ):
+  videos = []
+  the_url = BASE_URL + url
+  Log('Getting videos from:' + the_url)
+  page = HTML.ElementFromURL(the_url, errors='ignore')
+  video_elements = page.xpath( '//*/div[@id="clm-two"]/div[2]/div[@class="content clearfix"]/div[@class="results_vidList"]/ul[@class="videos"]/li/a' )
+  for video in video_elements:
+    thumb_span = video.xpath('.//span[@class="thumb"]')[0]
+    title_span = video.xpath('.//strong[@class="name"]')[0]
+    
+    videos.append({
+      'title': title_span.text.strip(),
+      'url': video.get('href'),
+      'thumb_url': re.sub( r'.*url\(([^\?)]+).*', r'\1', thumb_span.get('style') ) # ?maxwidth=84&maxheight=999
+    })
+  
+  if is_sub_page == False:
+    # see if there are any other pages
+    last_page = page.xpath( '//*/div[@id="clm-two"]/div[2]/div[@class="content clearfix"]/div[@class="results_vidList"]/ul[@class="pag"]/li[@class="last"]/a' ) #[0].text.strip
+  
+    if len(last_page):
+      last_page = last_page[0]
+      pages_url = re.sub( r'\?.*', '', url ) + re.sub( r'[0-9]+$', '', last_page.get('href') )
+      # Log( 'Pages URL: ' + pages_url )
+      total_pages = int(last_page.text.strip())
+      # Log( 'Total pages: ' + str( total_pages ) )
+      i = 2
+      while (i <= total_pages):
+        videos.extend( GetChannelVideos( pages_url + str(i), True ))
+        # Log( 'Processing page: ' + i )
+        i = i + 1
+
+  return videos
 # @handler('/video/pokerstars-tv', L('pokerstars.tv'))
 # def VideoMenu():
 #   dir = MediaContainer(viewGroup='Channels')

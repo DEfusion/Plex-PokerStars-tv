@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site 
+  site="http://www.pokerstars.tv/"
+	plugin="http://player.videojuicer.com/bootstrap.swf"
+	initialState="playing"
+	version="1.0">
+
+	<crop x="0" y="0" width="662" height="372" />
+</site>
