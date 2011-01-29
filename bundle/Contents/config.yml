@@ -8,17 +8,12 @@
 # other sections below.
 default: &default
   PLUGIN_ID:          com.plexapp.plugins.pokerstars-tv
-  PLUGIN_NAME:        Pokerstars.tv
+  PLUGIN_NAME:        PokerStars.tv
   PLUGIN_PREFIX:      /video/pokerstars-tv
   PLUGIN_VERSION:     0.0.1
   PLUGIN_AUTHOR:      David Spurr <defusion@defusion.org.uk>
   PLUGIN_DESCRIPTION: |
-    Foo Bar
-#    Vimcasts publishes regular screencasts about the Vim text editor. Episodes
-#    are kept short – typically less than 5 minutes, never more than 10. The aim
-#    is to provide something in each episode that you can take away and use.
-#    
-#    Vimcasts is produced by Drew Neil (aka nelstrom).
+    Watch Poker Videos, Webcasts & Live Events From PokerStars.tv
 
   VERSION_IN_PLUGIN_NAME: false
 

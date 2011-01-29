@@ -86,6 +86,7 @@ def ChannelDetails(sender,url,name,thumb_url):
 def ChannelVideos(sender,url,channel_name,name):
   dir = MediaContainer(title1=channel_name,title2=name,viewGroup='ChannelVideos')
   videos = GetChannelVideos( url )
+  
   for video in videos:
     dir.Append(
       WebVideoItem(
