@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml" lang="en" xml:lang="en" >
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+	<script type="text/javascript">
+		function vjPlayer(name) {
+			target = (navigator.appName.indexOf("Microsoft") !=-1)? window : document;
+			return target[name];
+		}
+		$(function() {
+			var player = vjPlayer('player');
+			var duration = 0;
+			var getDetails = function() {
+				var ready = ( typeof player.isSessionReady !== 'undefined' && player.isSessionReady() == true );
+				var loading = ( ready && player.hasStartedLoading() );
+				var playing = ( ready && loading && player.hasStartedPlayback() );
+				
+				if( loading || playing ) {
+					duration = player.getDuration();
+				}
+				
+				if( !ready || !loading || !playing ) {
+					setTimeout( getDetails, 500 );
+				} else {
+					console.log( 'We are running, the video is: ' + duration );
+					/*function foo() { alert('We are all done'); }
+					function pauseCallback() { alert('paused'); }
+					player.addListener('complete','foo');
+					player.addListener('pause','pauseCallback');
+					console.log( 'Complete handler added' );
+					*/
+					
+					/*var foo = function() {
+						console.log( player.getOffset(), duration, (player.getOffset >= duration) );
+						setTimeout(foo,500);
+					};
+					foo();
+					*/
+					/*function foo() { alert('pause') }
+					player.addListener('pause', 'foo()');
+					*/
+					
+					// add the button handlers
+					$('#play').click(function() {
+						if( playing ) {
+							player.pause();
+							playing = false;
+							$(this).text = '&gt;';
+						} else {
+							player.resume();
+							playing = true;
+							$(this).text = '||';
+						}
+						
+						return false;
+					});
+					
+					$('#forward,#backward,#backward-big,#forward-big').click(function() {
+						var multiplier = $(this).hasClass('forward') ? 1 : -1;
+						var amount = ( ( $(this).hasClass('big') ? 30 : 15 ) * multiplier ) * 1000;
+						if( playing ) {
+							var target = player.getOffset() + amount;
+							var loadedMS = ( duration / 100 * player.getBufferPercent() );
+							if( target < 0 ) { target = 0; }
+							if( loadedMS >= target ) {
+								console.log( 'at ' + player.getOffset() + ' seeking to ' + target );
+								player.seek( target / 1000 ); // docs specfify MS but it seems to take seconds instead
+							}
+							console.log( target, loadedMS );
+						}
+						return false;
+					});
+					
+					// add a watcher for the end condition
+				}
+			}
+			
+			getDetails();
+		});
+		
+	</script>
+	<head>
+	<body>
+		<object 
+			width="662" height="372"
+			classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" 
+			id="videojuicer_seed_pokerstars_presentation_5765">
+			<param name="movie" value="http://player.videojuicer.com/bootstrap.swf" />
+			<param name="allowFullScreen" value="true" />
+			<param name="allowscriptaccess" value="always" />
+			<param name="FlashVars" value="presentation_id=7235&ui_idle_timeout=0&heritage_id=893ee040-a132-4766-88b5-0a7606f51369%3A&AUTOPLAY=1&seed_name=pokerstars" />
+			<param name="name" value="player" />
+			<param name="wmode" value="transparent" />
+			<embed 
+				src="http://player.videojuicer.com/bootstrap.swf" 
+				type="application/x-shockwave-flash" 
+				allowscriptaccess="always" 
+				allowfullscreen="true" 
+				FlashVars="presentation_id=7235&ui_idle_timeout=0&heritage_id=893ee040-a132-4766-88b5-0a7606f51369%3A&AUTOPLAY=1&seed_name=pokerstars" 
+				width="662" height="372" 
+				name="player" wmode="transparent" />
+				<noembed>You need flash player to view this video</noembed>
+		</object>
+		<br />
+		<style type="text/css">
+			ul {
+				display: inline;
+			}
+			
+			li {
+				display: inline;
+			}
+			
+			li a {
+				display: inline-block;
+				margin: 0.5em;
+				padding: 0.5em;
+				background: #ccc;
+				font-weight: bold;
+			}
+			
+			li a:hover {
+				background: #333;
+				color: #fff;
+			}
+		</style>
+		
+		<ul>
+			<li><a id="backward-big" class="backward big">&laquo;&laquo;</a></li>
+			<li><a id="backward"  class="backward small">&laquo;</a></li>
+			<li><a id="play">||</a></li>
+			<li><a id="forward" class="forward small">&raquo;</a></li>
+			<li><a id="forward" class="forward big">&raquo;&raquo;</a></li>
+		</ul>
+		
+	</body>
+</html>

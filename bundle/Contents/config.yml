@@ -10,7 +10,7 @@ default: &default
   PLUGIN_ID:          com.plexapp.plugins.pokerstars-tv
   PLUGIN_NAME:        PokerStars.tv
   PLUGIN_PREFIX:      /video/pokerstars-tv
-  PLUGIN_VERSION:     0.0.1
+  PLUGIN_VERSION:     0.0.2
   PLUGIN_AUTHOR:      David Spurr <defusion@defusion.org.uk>
   PLUGIN_DESCRIPTION: |
     Watch Poker Videos, Webcasts & Live Events From PokerStars.tv

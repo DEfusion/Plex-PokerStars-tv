@@ -7,6 +7,17 @@
 
 	<crop x="0" y="0" width="662" height="372" />
 	
+	<!-- JavaScript API documentation: https://gist.github.com/8821fa317cc4a2f3aa64 -->
+	
+	<seekbar type="javascript">
+		<percentComplete equals="$.getOffset()/duration * 100.0" />
+		<bigStep   minus="$.seek(($.getOffset() / 1000) - 30)" plus="$.seek(($.getOffset() / 1000) + 30)" />
+		<smallStep minus="$.seek(($.getOffset() / 1000) - 10)" plus="$.seek(($.getOffset() / 1000) + 10)" />
+		<!-- as we sample at intervals we'll never see the offset hit the duration, it goes to 0 when complete
+		     so we do this hack, combined with the one in playing state -->
+		<end condition="startedPlaying &amp;&amp; $.getOffset() == 0;" />
+	</seekbar>
+	
 	<!-- BUFFERING -->
 	<state name="buffering">
 		<event>
@@ -14,6 +25,27 @@
 				<frameLoaded />
 			</condition>
 			<action>
+				<run script="startedPlaying=false;" />
+				<goto state="loading" />
+			</action>
+		</event>
+	</state>
+	
+	<!-- LOADING -->
+	<state name="loading">
+		<event>
+			<condition>
+				<and>
+					<javascript script="(typeof($.isSessionReady) === 'undefined') ? 0 : 1" matches="1"/>
+					<javascript script="($.isSessionReady()) ? 1 : 0" matches="1" />
+					<javascript script="($.hasStartedPlayback()) ? 1 : 0" matches="1" />
+				</and>
+			</condition>
+			<action>
+				<!-- ensure the volume is at full -->
+				<click x="592" y="359"/>
+			 
+				<run script="duration=$.getDuration();" />
 				<goto state="playing" />
 			</action>
 		</event>
@@ -21,12 +53,21 @@
 	
 	<!-- PLAYING -->
 	<state name="playing">
+		<!-- hack used to help us find when video ends (we see when it starts) -->
+		<event>
+			<condition>
+				<javascript script="($.getOffset() > 0) ? 1 : 0" matches="1" />
+			</condition>
+			<action>
+				<run script="startedPlaying = true;" />
+			</action>
+		</event>
 		<event>
 			<condition>
 				<command name="pause" />
 			</condition>
 			<action>
-				<type key="32" />
+				<run script="player.pause();" />
 				<goto state="paused" />
 			</action>
 		</event>
@@ -39,58 +80,9 @@
 				<command name="play" />
 			</condition>
 			<action>
-				<type key="32" />
+				<run script="player.resume();" />
 				<goto state="playing" />
 			</action>
 		</event>
 	</state>
-	
-	<!-- STEP FORWARD -->
-	<state name="bigstep+">
-		<event>
-			<condition>
-				<command name="bigstep+" />
-			</condition>
-			<action>
-				<type key="39" />
-				<goto state="playing" />
-			</action>
-		</event>
-	</state>
-	<state name="smallstep+">
-		<event>
-			<condition>
-				<command name="smallstep+" />
-			</condition>
-			<action>
-				<type key="39" />
-				<goto state="playing" />
-			</action>
-		</event>
-	</state>
-	
-	<!-- STEP BACKWARD -->
-	<state name="bigstep-">
-		<event>
-			<condition>
-				<command name="bigstep-" />
-			</condition>
-			<action>
-				<type key="37" />
-				<goto state="playing" />
-			</action>
-		</event>
-	</state>
-	<state name="smallstep-">
-		<event>
-			<condition>
-				<command name="smallstep-" />
-			</condition>
-			<action>
-				<type key="37" />
-				<goto state="playing" />
-			</action>
-		</event>
-	</state>
-	
 </site>
