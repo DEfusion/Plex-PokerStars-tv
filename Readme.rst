@@ -7,6 +7,10 @@ A Plex_ plugin for PokerStars.tv, allowing play of any videos on all of the chan
 Changelog
 =========
 
+0.0.3
+
+- fix: don't constantly do check that video has started
+
 0.0.2
 
 - new: control videos via the JS API

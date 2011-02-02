@@ -39,12 +39,14 @@
 					<javascript script="(typeof($.isSessionReady) === 'undefined') ? 0 : 1" matches="1"/>
 					<javascript script="($.isSessionReady()) ? 1 : 0" matches="1" />
 					<javascript script="($.hasStartedPlayback()) ? 1 : 0" matches="1" />
+					<!-- hack used to help us find when video ends (we see when it starts) -->
+					<javascript script="($.getOffset() > 0) ? 1 : 0" matches="1" />
 				</and>
 			</condition>
 			<action>
 				<!-- ensure the volume is at full -->
 				<click x="592" y="359"/>
-			 
+				<run script="startedPlaying = true;" />
 				<run script="duration=$.getDuration();" />
 				<goto state="playing" />
 			</action>
@@ -53,15 +55,6 @@
 	
 	<!-- PLAYING -->
 	<state name="playing">
-		<!-- hack used to help us find when video ends (we see when it starts) -->
-		<event>
-			<condition>
-				<javascript script="($.getOffset() > 0) ? 1 : 0" matches="1" />
-			</condition>
-			<action>
-				<run script="startedPlaying = true;" />
-			</action>
-		</event>
 		<event>
 			<condition>
 				<command name="pause" />
